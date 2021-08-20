@@ -30,7 +30,7 @@ class YukiTexture : JavaPlugin() {
         val file = dataFolder.resolve("texture.yml")
         if (!file.isFile) saveResource(file.name, true)
         val yaml = YamlConfiguration.loadConfiguration(file)
-        tex = yaml.getString("url")
+        tex = yaml.getString("url") ?: ""
         if (tex.isNotBlank()) logger.info("リソースパックのURLを $tex に設定しました。")
 
         sender?.sendMessage("$prefix ${CC.GREEN}リソースパックのURLを再読み込みしました。")
@@ -84,14 +84,14 @@ class YukiTexture : JavaPlugin() {
     }
 
     fun applyTexAsync(player: Player) {
-        server.scheduler.runTaskAsynchronously(this) { applyTex(player) }
+        server.scheduler.runTaskAsynchronously(this, Runnable { applyTex(player) })
     }
 
     override fun onEnable() {
         reloadTex()
 
-        getCommand("tex").executor = TextureCommand(this)
-        getCommand("reloadtex").executor = ReloadTextureCommand(this)
+        getCommand("tex")?.setExecutor(TextureCommand(this))
+        getCommand("reloadtex")?.setExecutor(ReloadTextureCommand(this))
         server.pluginManager.registerEvents(TextureListener(this), this)
     }
 }
